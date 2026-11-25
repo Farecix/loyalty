@@ -47,6 +47,9 @@ export const registerCustomer = (code: string, name: string, phone: string, refC
 export const getMyCard = (code: string) => rpc<Card | null>('get_my_card', { p_shop_code: code })
 export const claimStamp = (code: string, p: Position) =>
   rpc<ClaimResult>('claim_stamp', { p_shop_code: code, p_lat: p.lat, p_lng: p.lng, p_accuracy: p.accuracy })
+export type ReclaimResult = 'ok' | 'too_far' | 'location_not_set' | 'not_found'
+export const reclaimCard = (code: string, phone: string, p: Position) =>
+  rpc<ReclaimResult>('reclaim_card', { p_shop_code: code, p_phone: phone, p_lat: p.lat, p_lng: p.lng, p_accuracy: p.accuracy })
 export const redeemGrant = (grantId: string) => rpc<string>('redeem_grant', { p_grant_id: grantId })
 export const consumeLoginLink = (token: string) => rpc<string>('consume_login_link', { p_token: token })
 

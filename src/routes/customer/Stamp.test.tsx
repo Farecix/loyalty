@@ -12,7 +12,7 @@ const card: Card = {
   available: [], last_stamp_at: null, next_allowed_at: null,
 }
 const api = vi.hoisted(() => ({
-  getMyCard: vi.fn(), claimStamp: vi.fn(), shopPublic: vi.fn(), registerCustomer: vi.fn(),
+  getMyCard: vi.fn(), claimStamp: vi.fn(), shopPublic: vi.fn(), registerCustomer: vi.fn(), reclaimCard: vi.fn(),
 }))
 const geo = vi.hoisted(() => ({ getPosition: vi.fn() }))
 vi.mock('../../lib/api', async (orig) => ({ ...(await orig<object>()), ...api }))
@@ -75,5 +75,39 @@ describe('Stamp errors', () => {
     fireEvent.click(screen.getByRole('checkbox'))
     fireEvent.click(screen.getByRole('button', { name: en.createCard }))
     expect(await screen.findByText(en.error)).toBeInTheDocument()
+  })
+})
+
+describe('Stamp – returning customer in a new browser', () => {
+  it('a registered phone at the shop reclaims the card and then gets the stamp', async () => {
+    const { ApiError } = await import('../../lib/api')
+    api.getMyCard.mockResolvedValue(null)
+    api.shopPublic.mockResolvedValue({ name: 'Test Barber' })
+    api.registerCustomer.mockRejectedValue(new ApiError('PHONE_TAKEN', 'PHONE_TAKEN'))
+    api.reclaimCard.mockResolvedValue('ok')
+    geo.getPosition.mockResolvedValue({ lat: 1, lng: 2, accuracy: 10 })
+    api.claimStamp.mockResolvedValue({ status: 'ok', new_grants: [], card })
+    renderStamp()
+    fireEvent.change(await screen.findByLabelText(en.name), { target: { value: 'Somchai' } })
+    fireEvent.change(screen.getByLabelText(en.phone), { target: { value: '0811111111' } })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: en.createCard }))
+    expect(await screen.findByText('+1')).toBeInTheDocument()
+    expect(api.reclaimCard).toHaveBeenCalledWith('CODE', '0811111111', { lat: 1, lng: 2, accuracy: 10 })
+  })
+  it('reclaim away from the shop shows the too-far message', async () => {
+    const { ApiError } = await import('../../lib/api')
+    api.getMyCard.mockResolvedValue(null)
+    api.shopPublic.mockResolvedValue({ name: 'Test Barber' })
+    api.registerCustomer.mockRejectedValue(new ApiError('PHONE_TAKEN', 'PHONE_TAKEN'))
+    api.reclaimCard.mockResolvedValue('too_far')
+    geo.getPosition.mockResolvedValue({ lat: 1, lng: 2, accuracy: 10 })
+    renderStamp()
+    fireEvent.change(await screen.findByLabelText(en.name), { target: { value: 'Somchai' } })
+    fireEvent.change(screen.getByLabelText(en.phone), { target: { value: '0811111111' } })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: en.createCard }))
+    expect(await screen.findByText(en.reclaimTooFar)).toBeInTheDocument()
+    expect(api.claimStamp).not.toHaveBeenCalled()
   })
 })

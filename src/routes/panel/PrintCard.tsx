@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-import QRCode from 'qrcode'
 import { regenerateCardCode, type Shop } from '../../lib/api'
 import { publicBaseUrl } from '../../lib/supabase'
 import { useI18n } from '../../i18n'
@@ -7,11 +5,10 @@ import { th } from '../../i18n/th'
 import { en } from '../../i18n/en'
 import { Button } from '../../components/Shell'
 
+/** Dükkânın NFC kartı: puan yalnız bu karttaki adresle verilir (QR yok). */
 export default function PrintCard({ shop, onChanged }: { shop: Shop; onChanged: () => void }) {
   const { t } = useI18n()
   const url = `${publicBaseUrl}/s/${shop.card_code}`
-  const [qr, setQr] = useState('')
-  useEffect(() => { void QRCode.toDataURL(url, { margin: 1, width: 600, errorCorrectionLevel: 'M' }).then(setQr) }, [url])
 
   async function regen() {
     if (!window.confirm(t('confirmRegenerate'))) return
@@ -32,9 +29,9 @@ export default function PrintCard({ shop, onChanged }: { shop: Shop; onChanged: 
         </div>
       </div>
 
-      {/* 85×55 mm basılabilir kart (iki dilli) */}
+      {/* 85×55 mm, iki dilli NFC kartı (çip arkaya yapıştırılır) */}
       <div className="flex justify-center">
-        <div id="print-card" className="flex h-[55mm] w-[85mm] items-center gap-[4mm] overflow-hidden rounded-[3mm] bg-ink p-[4mm] text-white shadow-xl print:shadow-none">
+        <div id="print-card" className="flex h-[55mm] w-[85mm] items-center gap-[4mm] overflow-hidden rounded-[3mm] bg-ink p-[5mm] text-white shadow-xl print:shadow-none">
           <div className="flex h-full flex-1 flex-col justify-between">
             <div className="flex items-center gap-[2mm]">
               {shop.logo_url ? <img src={shop.logo_url} alt="" className="h-[9mm] w-[9mm] rounded-full object-cover" />
@@ -42,12 +39,15 @@ export default function PrintCard({ shop, onChanged }: { shop: Shop; onChanged: 
               <span className="text-[4mm] font-extrabold leading-tight">{shop.name}</span>
             </div>
             <div>
-              <p className="text-[3.6mm] font-bold leading-tight">{th.scanToCollect}</p>
-              <p className="text-[2.8mm] leading-tight opacity-80">{en.scanToCollect}</p>
-              <p className="mt-[1.5mm] text-[2.4mm] opacity-60">📱 QR · NFC</p>
+              <p className="text-[3.8mm] font-bold leading-tight">{th.tapToCollect}</p>
+              <p className="mt-[0.5mm] text-[2.8mm] leading-tight opacity-80">{en.tapToCollect}</p>
             </div>
           </div>
-          {qr && <img src={qr} alt="QR" className="h-[45mm] w-[45mm] rounded-[2mm] bg-white p-[1.5mm]" />}
+          <div aria-hidden className="relative flex h-[38mm] w-[30mm] items-center justify-center">
+            <span className="absolute h-[30mm] w-[30mm] rounded-full border-[0.8mm] border-amber-500/40" />
+            <span className="absolute h-[21mm] w-[21mm] rounded-full border-[0.8mm] border-amber-500/70" />
+            <span className="flex h-[13mm] w-[13mm] items-center justify-center rounded-full bg-amber-600 text-[7mm]">📱</span>
+          </div>
         </div>
       </div>
     </div>

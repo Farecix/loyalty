@@ -8,7 +8,10 @@ const errKey: Partial<Record<ApiError['code'], Key>> = {
   NAME_REQUIRED: 'errName', SHOP_NOT_FOUND: 'errShop',
 }
 
-export function SignupForm({ shopCode, refCode, onDone }: { shopCode: string; refCode?: string | null; onDone: () => void }) {
+/** onPhoneTaken: numara kayıtlıysa çağrılır; null dönerse giriş başarılı (onDone), metin dönerse hata gösterilir. */
+export function SignupForm({ shopCode, refCode, onDone, onPhoneTaken }: {
+  shopCode: string; refCode?: string | null; onDone: () => void; onPhoneTaken?: (phone: string) => Promise<string | null>
+}) {
   const { t } = useI18n()
   const [name, setName] = useState(''), [phone, setPhone] = useState(''), [pdpa, setPdpa] = useState(false)
   const [err, setErr] = useState<string | null>(null), [busy, setBusy] = useState(false), [showPolicy, setShowPolicy] = useState(false)
@@ -19,7 +22,14 @@ export function SignupForm({ shopCode, refCode, onDone }: { shopCode: string; re
     if (!pdpa) return setErr(t('errPdpa'))
     setBusy(true)
     try { await registerCustomer(shopCode, name, phone, refCode ?? null, pdpa); onDone() }
-    catch (e) { setErr(t(errKey[(e as ApiError).code] ?? 'error')) }
+    catch (e) {
+      const code = (e as ApiError).code
+      if (code === 'PHONE_TAKEN' && onPhoneTaken) {
+        try { const msg = await onPhoneTaken(phone); if (msg === null) return onDone(); return setErr(msg) }
+        catch { return setErr(t('error')) }
+      }
+      setErr(t(code === 'PHONE_TAKEN' ? 'reclaimTooFar' : errKey[code] ?? 'error'))
+    }
     finally { setBusy(false) }
   }
 

@@ -7,6 +7,8 @@ import { useI18n } from '../../i18n'
 import { Button, Panel, Shell, Spinner } from '../../components/Shell'
 import { SignupForm } from '../../components/SignupForm'
 import { StampGrid } from '../../components/StampGrid'
+import { CollectStamp } from '../../components/CollectStamp'
+import { InAppWarning } from '../../components/InAppWarning'
 
 /** /k/:shopCode – müşterinin kartı (ödüller + davet). /d/:shopCode/:refCode – davetle kayıt. */
 export default function Card() {
@@ -24,16 +26,17 @@ export default function Card() {
   if (err) return <Shell><Panel><p role="alert">{err}</p></Panel></Shell>
   if (card === undefined) return <Shell><Spinner label={t('loading')} /></Shell>
   if (card === null) return (
-    <Shell><Panel><SignupForm shopCode={shopCode} refCode={refCode ?? null} onDone={() => void load()} /></Panel>
+    <Shell><InAppWarning /><Panel><SignupForm shopCode={shopCode} refCode={refCode ?? null} onDone={() => void load()} /></Panel>
       <p className="mt-4 text-center text-sm text-white/70">{t('scanHint')}</p></Shell>
   )
 
   return (
     <Shell title={card.shop.name} logo={card.shop.logo_url}>
+      <InAppWarning />
       <Panel className="mb-4">
         <p className="mb-3 text-sm text-stone-500">{card.customer.name}</p>
         <StampGrid card={card} />
-        <p className="mt-4 text-center text-sm text-stone-500">{t('scanHint')}</p>
+        <div className="mt-5"><CollectStamp shopCode={shopCode} /></div>
       </Panel>
       <Panel className="mb-4">
         <h2 className="mb-3 text-lg font-extrabold">{t('myRewards')}</h2>
