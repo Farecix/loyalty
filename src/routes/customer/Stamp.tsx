@@ -52,7 +52,7 @@ export default function Stamp() {
   const retry = <Button onClick={() => void claim().catch(() => setSt({ s: 'error', msg: t('error') }))} className="mt-4 w-full">{t('retry')}</Button>
 
   return (
-    <Shell title={shopName}>
+    <Shell title={shopName} logo={'card' in st ? st.card.shop.logo_url : null}>
       {st.s === 'loading' && <Spinner label={t('loading')} />}
       {st.s === 'locating' && <Spinner label={t('gettingLocation')} />}
       {st.s === 'signup' && <Panel><SignupForm shopCode={shopCode} onDone={() => void claim()} /></Panel>}

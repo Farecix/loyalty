@@ -93,3 +93,14 @@ describe('register_customer + get_my_card', () => {
       .rejects.toThrow(/NOT_AUTHENTICATED|permission denied/)
   })
 })
+
+describe('shop logo', () => {
+  it('get_my_card and shop_public include the logo url', async () => {
+    const { shopId, cardCode } = await seedShop(db)
+    await db.q(`update shops set logo_url = 'https://x/logo.png' where id=$1`, [shopId])
+    const u = uid()
+    await register(u, cardCode, '0899999999')
+    expect((await card(u, cardCode)).shop.logo_url).toBe('https://x/logo.png')
+    expect((await db.asUser(null, q => q('select shop_public($1) s', [cardCode]))).rows[0].s.logo_url).toBe('https://x/logo.png')
+  })
+})

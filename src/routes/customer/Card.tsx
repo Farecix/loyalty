@@ -29,7 +29,7 @@ export default function Card() {
   )
 
   return (
-    <Shell title={card.shop.name}>
+    <Shell title={card.shop.name} logo={card.shop.logo_url}>
       <Panel className="mb-4">
         <p className="mb-3 text-sm text-stone-500">{card.customer.name}</p>
         <StampGrid card={card} />

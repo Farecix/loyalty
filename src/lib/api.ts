@@ -5,7 +5,7 @@ export type Rule = { threshold: number; title_th: string; title_en: string | nul
 export type GrantRef = { id: string; title_th: string; title_en: string | null; created_at?: string }
 export type Card = {
   customer: { id: string; name: string; invite_code: string }
-  shop: { name: string }
+  shop: { name: string; logo_url?: string | null }
   progress: number
   cycle_length: number
   rules: Rule[]
@@ -41,7 +41,7 @@ async function rpc<T>(fn: string, args: Record<string, unknown> = {}): Promise<T
 }
 
 // ---- Müşteri ----
-export const shopPublic = (code: string) => rpc<{ name: string }>('shop_public', { p_shop_code: code })
+export const shopPublic = (code: string) => rpc<{ name: string; logo_url?: string | null }>('shop_public', { p_shop_code: code })
 export const registerCustomer = (code: string, name: string, phone: string, refCode: string | null, pdpa: boolean) =>
   rpc<string>('register_customer', { p_shop_code: code, p_name: name, p_phone: phone, p_ref_code: refCode, p_pdpa: pdpa })
 export const getMyCard = (code: string) => rpc<Card | null>('get_my_card', { p_shop_code: code })

@@ -2,13 +2,14 @@ import type { ReactNode } from 'react'
 import { LangSwitch } from '../i18n'
 
 /** Müşteri ekranlarının ortak çerçevesi: koyu üst bant + içerik kartı. */
-export function Shell({ title, children }: { title?: string; children: ReactNode }) {
+export function Shell({ title, logo, children }: { title?: string; logo?: string | null; children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-ink text-white">
       <div className="mx-auto max-w-md px-4 pb-10">
         <header className="flex items-center justify-between py-4">
           <div className="flex items-center gap-2 min-w-0">
-            <span aria-hidden className="h-6 w-2 rounded-full bg-[repeating-linear-gradient(135deg,#dc2626_0_6px,#fff_6px_12px,#1d4ed8_12px_18px,#fff_18px_24px)]" />
+            {logo ? <img src={logo} alt="" className="h-8 w-8 rounded-full object-cover" /> :
+            <span aria-hidden className="h-6 w-2 rounded-full bg-[repeating-linear-gradient(135deg,#dc2626_0_6px,#fff_6px_12px,#1d4ed8_12px_18px,#fff_18px_24px)]" />}
             <span className="truncate font-extrabold tracking-wide">{title ?? ''}</span>
           </div>
           <LangSwitch />
