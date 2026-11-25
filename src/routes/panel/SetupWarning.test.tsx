@@ -18,3 +18,10 @@ describe('SetupWarning', () => {
     expect(screen.queryByRole('alert')).toBeNull()
   })
 })
+
+describe('SetupWarning – check off', () => {
+  it('shows nothing when the location check is turned off', () => {
+    render(<I18nProvider initial="en"><MemoryRouter><SetupWarning shop={{ lat: null, lng: null, location_check: false }} /></MemoryRouter></I18nProvider>)
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+})

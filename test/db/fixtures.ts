@@ -4,12 +4,14 @@ import { uid } from './harness'
 /** Dükkân konumu (Bangkok, Siam civarı). */
 export const SHOP_LAT = 13.7455, SHOP_LNG = 100.5340
 
-export async function seedShop(db: Db, opts: { lat?: number | null; lng?: number | null } = {}) {
+export async function seedShop(db: Db, opts: { lat?: number | null; lng?: number | null; locationCheck?: boolean } = {}) {
   const staff = uid()
   await db.q('insert into auth.users(id) values ($1)', [staff])
   const lat = opts.lat === undefined ? SHOP_LAT : opts.lat
   const lng = opts.lng === undefined ? SHOP_LNG : opts.lng
   const shop = (await db.q(`insert into shops(name, lat, lng) values ('Test Barber', $1, $2) returning id, card_code`, [lat, lng])).rows[0]
+  // Mevcut testler konum kontrolü açık varsayar; kapalı davranış ayrıca test edilir.
+  if (opts.locationCheck !== false) await db.q('update shops set location_check = true where id = $1', [shop.id]).catch(() => {})
   await db.q('insert into shop_staff(shop_id, user_id) values ($1, $2)', [shop.id, staff])
   await db.q(`insert into reward_rules(shop_id, threshold, title_th, title_en) values
     ($1, 5, 'ล้างผมฟรี', 'Free hair wash'), ($1, 10, 'ตัดผมฟรี', 'Free haircut')`, [shop.id])

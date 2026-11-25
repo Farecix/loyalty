@@ -21,11 +21,17 @@ export default function Stamp() {
   const { t, lang, pick } = useI18n()
   const [st, setSt] = useState<State>({ s: 'loading' })
 
+  // Konum yalnız berber konum kontrolünü açtıysa istenir (bilinmiyorsa güvenli taraf: iste).
+  const checkLocation = useRef(true)
   const claim = useCallback(async () => {
-    setSt({ s: 'locating' })
-    const pos = await getPosition()
-    if (pos === 'denied') return setSt({ s: 'denied' })
-    if (pos === 'unavailable') return setSt({ s: 'unavailable' })
+    let pos = null
+    if (checkLocation.current) {
+      setSt({ s: 'locating' })
+      const p = await getPosition()
+      if (p === 'denied') return setSt({ s: 'denied' })
+      if (p === 'unavailable') return setSt({ s: 'unavailable' })
+      pos = p
+    }
     const r = await claimStamp(shopCode, pos)
     if (r.status === 'ok') setSt({ s: 'ok', card: r.card, grants: r.new_grants })
     else if (r.status === 'cooldown') setSt({ s: 'cooldown', card: r.card, next: r.next_allowed_at })
@@ -38,7 +44,12 @@ export default function Stamp() {
       setSt({ s: 'loading' })
       await ensureSession()
       const card = await getMyCard(shopCode)
-      if (!card) { const shop = await shopPublic(shopCode); return setSt({ s: 'signup', shopName: shop.name }) }
+      if (!card) {
+        const shop = await shopPublic(shopCode)
+        checkLocation.current = shop.location_check !== false
+        return setSt({ s: 'signup', shopName: shop.name })
+      }
+      checkLocation.current = card.shop.location_check !== false
       await claim()
     } catch (e) {
       setSt({ s: 'error', msg: (e as ApiError).code === 'SHOP_NOT_FOUND' ? t('errShop') : t('error') })

@@ -12,6 +12,7 @@ export default function Settings({ shop, onSaved }: { shop: Shop; onSaved: () =>
   const { t } = useI18n()
   const [f, setF] = useState({ name: shop.name, lat: shop.lat, lng: shop.lng, radius_m: shop.radius_m, cooldown_hours: shop.cooldown_hours })
   const [msg, setMsg] = useState<string | null>(null)
+  const [check, setCheck] = useState(shop.location_check)
 
   async function save(e?: FormEvent, patch?: Partial<Shop>) {
     e?.preventDefault(); setMsg(null)
@@ -48,6 +49,13 @@ export default function Settings({ shop, onSaved }: { shop: Shop; onSaved: () =>
       </form>
 
       <div className={box}>
+        <label className="flex items-center justify-between gap-3">
+          <span className="font-semibold">{t('locationCheck')}</span>
+          <input type="checkbox" role="checkbox" aria-label={t('locationCheck')} className="h-6 w-11 accent-brand" checked={check}
+            onChange={(e) => { setCheck(e.target.checked); void save(undefined, { location_check: e.target.checked }) }} />
+        </label>
+        <p className="text-xs text-stone-500">{t('locationCheckHint')}</p>
+        <hr className="border-stone-200" />
         <p className="font-semibold">{t('location')}</p>
         <p className="text-sm text-stone-500">{f.lat != null && f.lng != null ? `${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}` : t('noLocation')}</p>
         <Button type="button" variant="ghost" onClick={() => void useHere()}>📍 {t('useMyLocation')}</Button>

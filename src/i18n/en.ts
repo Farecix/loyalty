@@ -116,4 +116,6 @@ export const en: Record<keyof typeof th, string> = {
   logIn: 'Log in',
   loginTitle: 'Open your card',
   phoneNotFound: 'No card found for this number. Please create a new card.',
+  locationCheck: 'Check location when collecting stamps',
+  locationCheckHint: 'On: stamps only at the shop (shop location must be set). Off: tapping the NFC card gives a stamp anywhere (once a day).',
 }

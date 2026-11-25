@@ -121,3 +121,27 @@ describe('Stamp – returning customer in a new browser', () => {
     expect(api.claimStamp).not.toHaveBeenCalled()
   })
 })
+
+describe('Stamp – location check off', () => {
+  it('does not ask for location and claims without coordinates', async () => {
+    api.getMyCard.mockResolvedValue({ ...card, shop: { name: 'Test Barber', location_check: false } })
+    api.claimStamp.mockResolvedValue({ status: 'ok', new_grants: [], card })
+    renderStamp()
+    expect(await screen.findByText('+1')).toBeInTheDocument()
+    expect(geo.getPosition).not.toHaveBeenCalled()
+    expect(api.claimStamp).toHaveBeenCalledWith('CODE', null)
+  })
+  it('after signup at a shop with the check off, claims without location', async () => {
+    api.getMyCard.mockResolvedValue(null)
+    api.shopPublic.mockResolvedValue({ name: 'Test Barber', location_check: false })
+    api.registerCustomer.mockResolvedValue('c1')
+    api.claimStamp.mockResolvedValue({ status: 'ok', new_grants: [], card })
+    renderStamp()
+    fireEvent.change(await screen.findByLabelText(en.name), { target: { value: 'Somchai' } })
+    fireEvent.change(screen.getByLabelText(en.phone), { target: { value: '0811111111' } })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: en.createCard }))
+    expect(await screen.findByText('+1')).toBeInTheDocument()
+    expect(geo.getPosition).not.toHaveBeenCalled()
+  })
+})

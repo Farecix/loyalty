@@ -1,6 +1,6 @@
 // Canlı Supabase'e karşı duman testi: node e2e/smoke.mjs <baseUrl> <cardCode>
 import { chromium } from 'playwright'
-const [base, code] = process.argv.slice(2)
+const [base, code, codeOff] = process.argv.slice(2)
 const SHOP = { latitude: 13.7455, longitude: 100.5340 }
 const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: 'localhost,127.0.0.1' } : undefined
 const browser = await chromium.launch({ proxy, executablePath: process.env.PW_CHROMIUM || undefined })
@@ -62,6 +62,15 @@ await E.p.getByRole('button', { name: 'Log in' }).click()
 check(await seen(E.p.getByText('2 / 10 stamps')), "E: logs in with A's phone from 9 km away and sees A's card")
 await E.p.goto(`${base}/s/${code}`)
 check(await seen(E.p.getByText(/not at the shop/)), 'E: but cannot collect a stamp away from the shop')
+
+if (codeOff) {
+  const F = await ctx({ latitude: 13.80, longitude: 100.60 })
+  await F.p.goto(`${base}/s/${codeOff}`)
+  await signup(F.p, 'E2E Far', '0899000004')
+  check(await seen(F.p.getByText('+1')), 'F: shop with location check OFF → stamp from 9 km away')
+  await F.p.goto(`${base}/s/${codeOff}`)
+  check(await seen(F.p.getByText(/already got a stamp today/)), 'F: check OFF still allows only one stamp a day')
+}
 
 await A.p.screenshot({ path: process.env.SHOT_DIR + '/live-cooldown.png' })
 await browser.close()
