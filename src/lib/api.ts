@@ -57,7 +57,7 @@ export type Shop = {
 }
 export type FeedItem = {
   kind: 'stamp' | 'redeem'; id: string; customer_id: string; customer_name: string
-  title_th: string | null; title_en: string | null; source: 'card' | 'referral' | null; at: string; cancelled: boolean
+  title_th: string | null; title_en: string | null; source: 'card' | 'referral' | null; at: string; cancelled: boolean; stamp_cancelled?: boolean
 }
 export type CustomerRow = {
   id: string; name: string; phone: string; progress: number; available: number

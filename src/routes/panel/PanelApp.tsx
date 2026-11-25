@@ -10,6 +10,7 @@ import Feed from './Feed'
 import Customers from './Customers'
 import Settings from './Settings'
 import PrintCard from './PrintCard'
+import { SetupWarning } from './SetupWarning'
 
 export default function PanelApp() {
   const { t } = useI18n()
@@ -49,6 +50,7 @@ export default function PanelApp() {
         </nav>
       </header>
       <main className="mx-auto max-w-3xl p-4">
+        <div className="print:hidden"><SetupWarning shop={shop} /></div>
         <Routes>
           <Route index element={<Feed shop={shop} />} />
           <Route path="customers" element={<Customers />} />

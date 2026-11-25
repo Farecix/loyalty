@@ -100,4 +100,6 @@ export const en: Record<keyof typeof th, string> = {
   notStaff: 'This account is not a shop account',
   pdpaTitle: 'Privacy policy',
   pdpaBody: 'The shop stores your name and phone number only for the loyalty program. Your location is checked only when you collect a stamp and is never stored. Your data is not sold or shared with third parties. You can ask the shop to view, correct or delete your data, in line with the Personal Data Protection Act B.E. 2562 (2019).',
+  setupLocationWarning: 'Shop location is not set — stamps can currently be collected from anywhere. Go to Settings and press "Use my current location" while in the shop.',
+  stampCancelledMark: 'The stamp for this reward was cancelled',
 }

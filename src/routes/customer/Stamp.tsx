@@ -48,14 +48,15 @@ export default function Stamp() {
   const started = useRef('')
   useEffect(() => { if (started.current === shopCode) return; started.current = shopCode; void start() }, [start, shopCode])
 
+  const safeClaim = useCallback(() => { void claim().catch(() => setSt({ s: 'error', msg: t('error') })) }, [claim, t])
   const shopName = 'card' in st ? st.card.shop.name : st.s === 'signup' ? st.shopName : ''
-  const retry = <Button onClick={() => void claim().catch(() => setSt({ s: 'error', msg: t('error') }))} className="mt-4 w-full">{t('retry')}</Button>
+  const retry = <Button onClick={safeClaim} className="mt-4 w-full">{t('retry')}</Button>
 
   return (
     <Shell title={shopName} logo={'card' in st ? st.card.shop.logo_url : null}>
       {st.s === 'loading' && <Spinner label={t('loading')} />}
       {st.s === 'locating' && <Spinner label={t('gettingLocation')} />}
-      {st.s === 'signup' && <Panel><SignupForm shopCode={shopCode} onDone={() => void claim()} /></Panel>}
+      {st.s === 'signup' && <Panel><SignupForm shopCode={shopCode} onDone={safeClaim} /></Panel>}
       {st.s === 'denied' && <Panel><p role="alert" className="text-lg">{t('locationRequired')}</p>{retry}</Panel>}
       {st.s === 'unavailable' && <Panel><p role="alert" className="text-lg">{t('locationUnavailable')}</p>{retry}</Panel>}
       {st.s === 'error' && <Panel><p role="alert" className="text-lg">{st.msg}</p></Panel>}

@@ -21,6 +21,7 @@ export function FeedList({ items, onCancel, onUndo }:
               {formatTime(f.at, lang)} · {f.kind === 'redeem' ? t('redeemEvent', { title: pick({ title_th: f.title_th ?? '', title_en: f.title_en }) })
                 : f.source === 'referral' ? t('referralEvent') : t('stampEvent')}
             </p>
+            {f.stamp_cancelled && <p className="text-xs font-semibold text-red-600">⚠️ {t('stampCancelledMark')}</p>}
           </div>
           {f.cancelled ? <span className="text-xs no-underline">{t('cancelled')}</span>
             : f.kind === 'stamp' ? (

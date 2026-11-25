@@ -26,7 +26,7 @@ export default function Settings({ shop, onSaved }: { shop: Shop; onSaved: () =>
   }
   async function uploadLogo(file: File) {
     const path = `${shop.id}/logo-${Date.now()}.${file.name.split('.').pop() || 'png'}`
-    const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true, contentType: file.type })
+    const { error } = await supabase.storage.from('logos').upload(path, file, { contentType: file.type })
     if (error) return setMsg(t('error'))
     const url = supabase.storage.from('logos').getPublicUrl(path).data.publicUrl
     await save(undefined, { logo_url: url })

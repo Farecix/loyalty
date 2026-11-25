@@ -6,5 +6,5 @@ on conflict (id) do nothing;
 -- Personel yalnız kendi dükkân klasörüne (<shop_id>/...) yükleyebilir.
 create policy "staff upload logos" on storage.objects for insert to authenticated
   with check (bucket_id = 'logos' and public.is_staff(((storage.foldername(name))[1])::uuid));
-create policy "staff update logos" on storage.objects for update to authenticated
+create policy "staff read own logos" on storage.objects for select to authenticated
   using (bucket_id = 'logos' and public.is_staff(((storage.foldername(name))[1])::uuid));

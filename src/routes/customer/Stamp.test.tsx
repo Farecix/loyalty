@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { I18nProvider } from '../../i18n'
 import { en } from '../../i18n/en'
@@ -59,5 +59,21 @@ describe('Stamp', () => {
     renderStamp()
     expect(await screen.findByLabelText(en.phone)).toBeInTheDocument()
     expect(api.claimStamp).not.toHaveBeenCalled()
+  })
+})
+
+describe('Stamp errors', () => {
+  it('a network error on the claim right after signup shows an error instead of spinning forever', async () => {
+    api.getMyCard.mockResolvedValue(null)
+    api.shopPublic.mockResolvedValue({ name: 'Test Barber' })
+    api.registerCustomer.mockResolvedValue('c1')
+    geo.getPosition.mockResolvedValue({ lat: 1, lng: 2, accuracy: 10 })
+    api.claimStamp.mockRejectedValue(new Error('network'))
+    renderStamp()
+    fireEvent.change(await screen.findByLabelText(en.name), { target: { value: 'Somchai' } })
+    fireEvent.change(screen.getByLabelText(en.phone), { target: { value: '0811111111' } })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: en.createCard }))
+    expect(await screen.findByText(en.error)).toBeInTheDocument()
   })
 })
