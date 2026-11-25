@@ -48,8 +48,16 @@ check(await seen(C.p.getByText(/not at the shop/)), 'C: 9 km away → too far')
 
 const D = await ctx()
 await D.p.goto(`${base}/s/${code}`)
-await signup(D.p, 'E2E Dup', '+66 89 900 0001')
-check(await seen(D.p.getByText(/already has a card/)), 'D: same phone in another format → already has a card')
+await signup(D.p, 'E2E Anan', '+66 89 900 0001')
+check(await seen(D.p.getByText(/already got a stamp today/)), "D: A's number in a new browser at the shop → back into A's card (cooldown, no 2nd stamp)")
+check(await seen(D.p.getByText('2 / 10 stamps')), "D: sees A's 2 / 10")
+await D.p.goto(`${base}/k/${code}`)
+check(await seen(D.p.getByRole('button', { name: 'Get a stamp' })), 'D: card page has a Get a stamp button')
+
+const E = await ctx({ latitude: 13.80, longitude: 100.60 })
+await E.p.goto(`${base}/s/${code}`)
+await signup(E.p, 'E2E Anan', '0899000001')
+check(await seen(E.p.getByText(/Tap the shop's NFC card at the shop/)), "E: A's number from 9 km away → cannot take over the card")
 
 await A.p.screenshot({ path: process.env.SHOT_DIR + '/live-cooldown.png' })
 await browser.close()
