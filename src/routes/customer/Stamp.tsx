@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { claimStamp, getMyCard, reclaimCard, shopPublic, type ApiError, type Card, type GrantRef } from '../../lib/api'
+import { claimStamp, getMyCard, shopPublic, type ApiError, type Card, type GrantRef } from '../../lib/api'
 import { getPosition } from '../../lib/geo'
 import { ensureSession } from '../../lib/session'
 import { formatTime, useI18n } from '../../i18n'
@@ -50,13 +50,6 @@ export default function Stamp() {
   useEffect(() => { if (started.current === shopCode) return; started.current = shopCode; void start() }, [start, shopCode])
 
   const safeClaim = useCallback(() => { void claim().catch(() => setSt({ s: 'error', msg: t('error') })) }, [claim, t])
-  const onPhoneTaken = useCallback(async (phone: string) => {
-    const pos = await getPosition()
-    if (pos === 'denied') return t('locationRequired')
-    if (pos === 'unavailable') return t('locationUnavailable')
-    const r = await reclaimCard(shopCode, phone, pos)
-    return r === 'ok' ? null : r === 'location_not_set' ? t('reclaimNoLocation') : r === 'not_found' ? t('error') : t('reclaimTooFar')
-  }, [shopCode, t])
   const shopName = 'card' in st ? st.card.shop.name : st.s === 'signup' ? st.shopName : ''
   const retry = <Button onClick={safeClaim} className="mt-4 w-full">{t('retry')}</Button>
 
@@ -65,7 +58,7 @@ export default function Stamp() {
       <InAppWarning />
       {st.s === 'loading' && <Spinner label={t('loading')} />}
       {st.s === 'locating' && <Spinner label={t('gettingLocation')} />}
-      {st.s === 'signup' && <Panel><SignupForm shopCode={shopCode} onDone={safeClaim} onPhoneTaken={onPhoneTaken} /></Panel>}
+      {st.s === 'signup' && <Panel><SignupForm shopCode={shopCode} onDone={safeClaim} /></Panel>}
       {st.s === 'denied' && <Panel><p role="alert" className="text-lg">{t('locationRequired')}</p>{retry}</Panel>}
       {st.s === 'unavailable' && <Panel><p role="alert" className="text-lg">{t('locationUnavailable')}</p>{retry}</Panel>}
       {st.s === 'error' && <Panel><p role="alert" className="text-lg">{st.msg}</p></Panel>}

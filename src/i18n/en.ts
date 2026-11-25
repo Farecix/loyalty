@@ -111,4 +111,9 @@ export const en: Record<keyof typeof th, string> = {
   reclaimTooFar: "This number already has a card. Tap the shop's NFC card at the shop to open your card.",
   reclaimNoLocation: 'This number already has a card. Ask the shop for a login link.',
   tapToCollect: 'Tap your phone here to collect a stamp',
+  haveCard: 'Already have a card? Log in with your phone',
+  newCard: 'No card yet? Create one',
+  logIn: 'Log in',
+  loginTitle: 'Open your card',
+  phoneNotFound: 'No card found for this number. Please create a new card.',
 }
